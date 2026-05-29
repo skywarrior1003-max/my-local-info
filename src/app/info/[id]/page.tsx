@@ -70,9 +70,11 @@ export default async function InfoDetail({ params }: { params: Promise<{ id: str
             <h1 className="text-2xl font-extrabold tracking-tight">🏘️ 성남시 생활 정보</h1>
             <p className="text-orange-100 text-sm mt-0.5">우리 동네 행사·혜택을 한눈에!</p>
           </Link>
-          <span className="hidden sm:block text-sm bg-white/20 backdrop-blur px-4 py-1.5 rounded-full font-semibold border border-white/30">
-            상세 정보 📋
-          </span>
+          <div className="flex items-center gap-4">
+            <Link href="/blog" className="text-sm bg-white/20 backdrop-blur px-4 py-1.5 rounded-full font-semibold border border-white/30 hover:bg-white/30 transition">
+              블로그 📝
+            </Link>
+          </div>
         </div>
       </header>
 

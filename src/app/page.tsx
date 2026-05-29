@@ -32,13 +32,15 @@ export default async function Home() {
       {/* ===== 1. 상단 헤더 ===== */}
       <header className="bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg">
         <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
-          <div>
+          <Link href="/" className="hover:opacity-80 transition text-left">
             <h1 className="text-2xl font-extrabold tracking-tight">🏘️ 성남시 생활 정보</h1>
             <p className="text-orange-100 text-sm mt-0.5">우리 동네 행사·혜택을 한눈에!</p>
+          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/blog" className="text-sm bg-white/20 backdrop-blur px-4 py-1.5 rounded-full font-semibold border border-white/30 hover:bg-white/30 transition">
+              블로그 📝
+            </Link>
           </div>
-          <span className="hidden sm:block text-sm bg-white/20 backdrop-blur px-4 py-1.5 rounded-full font-semibold border border-white/30">
-            우리 동네 소식 📢
-          </span>
         </div>
       </header>
 
@@ -58,7 +60,7 @@ export default async function Home() {
             {data.events.map((item) => (
               <Link
                 key={item.id}
-                href={`/info/${item.id}`}
+                href="/blog"
                 className="group bg-white rounded-2xl p-5 shadow-sm border border-orange-100 flex flex-col hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="flex justify-between items-center mb-4">
@@ -98,7 +100,7 @@ export default async function Home() {
             {data.benefits.map((item) => (
               <Link
                 key={item.id}
-                href={`/info/${item.id}`}
+                href="/blog"
                 className="group bg-white rounded-2xl p-5 shadow-sm border border-amber-100 flex flex-col hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="flex justify-between items-center mb-4">
