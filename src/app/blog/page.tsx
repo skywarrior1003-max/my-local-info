@@ -22,6 +22,9 @@ export default function BlogListPage() {
             <Link href="/" className="text-sm hover:underline transition">
               홈
             </Link>
+            <Link href="/about" className="text-sm hover:underline transition">
+              소개 ℹ️
+            </Link>
             <Link href="/blog" className="text-sm bg-white/20 backdrop-blur px-4 py-1.5 rounded-full font-semibold border border-white/30 hover:bg-white/30 transition">
               블로그 📝
             </Link>

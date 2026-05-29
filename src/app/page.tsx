@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import Link from 'next/link';
+import AdBanner from '@/components/AdBanner';
 
 interface Item {
   id: string;
@@ -37,6 +38,9 @@ export default async function Home() {
             <p className="text-orange-100 text-sm mt-0.5">우리 동네 행사·혜택을 한눈에!</p>
           </Link>
           <div className="flex items-center gap-4">
+            <Link href="/about" className="text-sm hover:underline transition">
+              소개 ℹ️
+            </Link>
             <Link href="/blog" className="text-sm bg-white/20 backdrop-blur px-4 py-1.5 rounded-full font-semibold border border-white/30 hover:bg-white/30 transition">
               블로그 📝
             </Link>
@@ -57,35 +61,68 @@ export default async function Home() {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data.events.map((item) => (
-              <Link
-                key={item.id}
-                href="/blog"
-                className="group bg-white rounded-2xl p-5 shadow-sm border border-orange-100 flex flex-col hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <span className="bg-orange-100 text-orange-600 text-xs font-bold px-2.5 py-1 rounded-full">
-                    {item.category}
-                  </span>
-                  <span className="text-gray-400 text-xs">{item.startDate} ~ {item.endDate}</span>
-                </div>
-                <h3 className="text-base font-bold mb-2 group-hover:text-orange-500 transition-colors leading-snug">
-                  {item.name}
-                </h3>
-                <p className="text-gray-500 text-sm leading-relaxed flex-grow line-clamp-3">
-                  {item.summary}
-                </p>
-                <div className="mt-4 pt-4 border-t border-gray-100 space-y-1.5 text-xs text-gray-500 font-medium">
-                  <p className="flex items-center gap-2">📍 {item.location}</p>
-                  <p className="flex items-center gap-2">👥 {item.target}</p>
-                </div>
-                <div className="mt-4 text-orange-500 text-sm font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
-                  자세히 보기 <span>→</span>
-                </div>
-              </Link>
-            ))}
+            {data.events.map((item) => {
+              const cleanDate = (dateStr: string) => {
+                if (!dateStr) return '2026-01-01';
+                if (dateStr.includes('월')) {
+                  const parts = dateStr.replace('일', '').split('월').map(v => v.trim().padStart(2, '0'));
+                  return `2026-${parts[0]}-${parts[1]}`;
+                }
+                return dateStr;
+              };
+              const eventJsonLd = {
+                "@context": "https://schema.org",
+                "@type": "Event",
+                "name": item.name,
+                "startDate": cleanDate(item.startDate),
+                "endDate": cleanDate(item.endDate),
+                "location": {
+                  "@type": "Place",
+                  "name": item.location,
+                  "address": {
+                    "@type": "PostalAddress",
+                    "addressLocality": "성남시"
+                  }
+                },
+                "description": item.summary
+              };
+              return (
+                <Link
+                  key={item.id}
+                  href="/blog"
+                  className="group bg-white rounded-2xl p-5 shadow-sm border border-orange-100 flex flex-col hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+                >
+                  <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
+                  />
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="bg-orange-100 text-orange-600 text-xs font-bold px-2.5 py-1 rounded-full">
+                      {item.category}
+                    </span>
+                    <span className="text-gray-400 text-xs">{item.startDate} ~ {item.endDate}</span>
+                  </div>
+                  <h3 className="text-base font-bold mb-2 group-hover:text-orange-500 transition-colors leading-snug">
+                    {item.name}
+                  </h3>
+                  <p className="text-gray-500 text-sm leading-relaxed flex-grow line-clamp-3">
+                    {item.summary}
+                  </p>
+                  <div className="mt-4 pt-4 border-t border-gray-100 space-y-1.5 text-xs text-gray-500 font-medium">
+                    <p className="flex items-center gap-2">📍 {item.location}</p>
+                    <p className="flex items-center gap-2">👥 {item.target}</p>
+                  </div>
+                  <div className="mt-4 text-orange-500 text-sm font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
+                    자세히 보기 <span>→</span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
+
+        {/* 광고 배너 */}
+        <AdBanner />
 
         {/* ===== 3. 지원금/혜택 섹션 ===== */}
         <section>
@@ -97,33 +134,49 @@ export default async function Home() {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data.benefits.map((item) => (
-              <Link
-                key={item.id}
-                href="/blog"
-                className="group bg-white rounded-2xl p-5 shadow-sm border border-amber-100 flex flex-col hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                    {item.category}
-                  </span>
-                  <span className="text-gray-400 text-xs">{item.startDate}</span>
-                </div>
-                <h3 className="text-base font-bold mb-2 group-hover:text-amber-600 transition-colors leading-snug">
-                  {item.name}
-                </h3>
-                <p className="text-gray-500 text-sm leading-relaxed flex-grow line-clamp-3">
-                  {item.summary}
-                </p>
-                <div className="mt-4 pt-4 border-t border-gray-100 space-y-1.5 text-xs text-gray-500 font-medium">
-                  <p className="flex items-center gap-2">📍 {item.location}</p>
-                  <p className="flex items-center gap-2">👥 {item.target}</p>
-                </div>
-                <div className="mt-4 text-amber-600 text-sm font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
-                  자세히 보기 <span>→</span>
-                </div>
-              </Link>
-            ))}
+            {data.benefits.map((item) => {
+              const serviceJsonLd = {
+                "@context": "https://schema.org",
+                "@type": "GovernmentService",
+                "name": item.name,
+                "description": item.summary,
+                "provider": {
+                  "@type": "GovernmentOrganization",
+                  "name": item.location.includes('주민센터') || item.location.includes('시청') ? "성남시" : "대한민국 정부"
+                }
+              };
+              return (
+                <Link
+                  key={item.id}
+                  href="/blog"
+                  className="group bg-white rounded-2xl p-5 shadow-sm border border-amber-100 flex flex-col hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+                >
+                  <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+                  />
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                      {item.category}
+                    </span>
+                    <span className="text-gray-400 text-xs">{item.startDate}</span>
+                  </div>
+                  <h3 className="text-base font-bold mb-2 group-hover:text-amber-600 transition-colors leading-snug">
+                    {item.name}
+                  </h3>
+                  <p className="text-gray-500 text-sm leading-relaxed flex-grow line-clamp-3">
+                    {item.summary}
+                  </p>
+                  <div className="mt-4 pt-4 border-t border-gray-100 space-y-1.5 text-xs text-gray-500 font-medium">
+                    <p className="flex items-center gap-2">📍 {item.location}</p>
+                    <p className="flex items-center gap-2">👥 {item.target}</p>
+                  </div>
+                  <div className="mt-4 text-amber-600 text-sm font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
+                    자세히 보기 <span>→</span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
 
