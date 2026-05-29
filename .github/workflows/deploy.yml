@@ -60,6 +60,8 @@ jobs:
           fi
 
       - name: Build project
+        env:
+          NEXT_PUBLIC_ADSENSE_ID: ca-pub-8997765300286040
         run: npm run build
 
       - name: Deploy to Cloudflare Pages
