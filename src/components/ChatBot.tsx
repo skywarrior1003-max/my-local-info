@@ -278,9 +278,9 @@ export default function ChatBot() {
             </div>
             <button
               onClick={connectHuman}
-              className="w-full text-xs py-2 bg-orange-50 text-orange-600 border border-orange-200 rounded-xl hover:bg-orange-100 transition-colors font-medium"
+              className="w-full text-sm py-3 bg-orange-50 text-orange-600 border border-orange-200 rounded-xl hover:bg-orange-100 transition-colors font-semibold"
             >
-              상담원 연결
+              상담원 연결 ❤️
             </button>
           </div>
         )}
