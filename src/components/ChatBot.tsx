@@ -13,27 +13,55 @@ interface Message {
   text: string;
 }
 
-const GREETING = '안녕하세요! 궁금한 점을 아래 버튼으로 질문해보세요. 😊';
+const GREETING = '안녕하세요! 궁금한 점을 아래 버튼으로 선택하거나 직접 입력해보세요. 😊';
 
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { type: 'bot', text: GREETING },
   ]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, isOpen]);
+  }, [messages, isLoading, isOpen]);
 
-  const handleQuestion = (faq: FAQ) => {
-    setMessages((prev) => [
-      ...prev,
-      { type: 'user', text: faq.question },
-      { type: 'bot', text: faq.answer },
-    ]);
+  const sendQuestion = async (question: string) => {
+    if (isLoading || !question.trim()) return;
+
+    setMessages((prev) => [...prev, { type: 'user', text: question }]);
+    setIsLoading(true);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question }),
+      });
+      const data = await res.json();
+      const answer = data.answer ?? '답변을 가져오지 못했습니다.';
+      setMessages((prev) => [...prev, { type: 'bot', text: answer }]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { type: 'bot', text: '오류가 발생했습니다. 잠시 후 다시 시도해주세요.' },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleQuestion = (faq: FAQ) => sendQuestion(faq.question);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendQuestion(input);
+    setInput('');
   };
 
   return (
@@ -60,7 +88,7 @@ export default function ChatBot() {
               </svg>
             </div>
             <div>
-              <p className="font-semibold text-sm leading-tight">AI 상담원</p>
+              <p className="font-semibold text-sm leading-tight">다이내믹 놀자</p>
               <p className="text-xs text-blue-200 flex items-center gap-1">
                 <span className="inline-block w-1.5 h-1.5 bg-green-400 rounded-full" />
                 온라인
@@ -104,24 +132,75 @@ export default function ChatBot() {
               </div>
             </div>
           ))}
+
+          {/* Typing indicator */}
+          {isLoading && (
+            <div className="flex items-end gap-2 justify-start">
+              <div className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+                </svg>
+              </div>
+              <div className="bg-white rounded-2xl rounded-bl-sm shadow-sm px-4 py-3 flex gap-1 items-center">
+                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
+                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
+                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
+              </div>
+            </div>
+          )}
+
           <div ref={messagesEndRef} />
         </div>
 
         {/* FAQ Buttons */}
-        <div className="border-t border-gray-100 bg-white p-3 flex-shrink-0">
-          <p className="text-xs text-gray-400 mb-2 text-center">질문을 선택해주세요</p>
+        <div className="border-t border-gray-100 bg-white px-3 pt-3 pb-2 flex-shrink-0">
+          <p className="text-xs text-gray-400 mb-2 text-center">자주 묻는 질문</p>
           <div className="flex flex-wrap gap-1.5">
             {(chatData as FAQ[]).map((faq, i) => (
               <button
                 key={i}
                 onClick={() => handleQuestion(faq)}
-                className="text-xs px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-full hover:bg-blue-100 active:bg-blue-200 transition-colors"
+                disabled={isLoading}
+                className="text-xs px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-full hover:bg-blue-100 active:bg-blue-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {faq.question}
               </button>
             ))}
           </div>
         </div>
+
+        {/* Text Input */}
+        <form
+          onSubmit={handleSubmit}
+          className="border-t border-gray-100 bg-white px-3 py-2 flex gap-2 items-center flex-shrink-0"
+        >
+          <input
+            ref={inputRef}
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={isLoading}
+            placeholder="직접 질문을 입력하세요..."
+            className="flex-1 text-sm px-3 py-2 rounded-full border border-gray-200 outline-none focus:border-blue-400 disabled:bg-gray-50 disabled:cursor-not-allowed"
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !input.trim()}
+            className="w-9 h-9 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center flex-shrink-0 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="전송"
+          >
+            {isLoading ? (
+              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+              </svg>
+            )}
+          </button>
+        </form>
       </div>
 
       {/* Floating Button */}
@@ -129,7 +208,7 @@ export default function ChatBot() {
         onClick={() => setIsOpen((v) => !v)}
         className={[
           'fixed bottom-4 right-4 z-[60]',
-          'w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg',
+          'w-14 h-14 bg-sky-300 hover:bg-sky-400 text-white rounded-full shadow-lg',
           'flex items-center justify-center',
           'transition-all duration-300 hover:scale-110 active:scale-95',
           isOpen ? 'hidden sm:flex' : 'flex',
