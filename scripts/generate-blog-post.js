@@ -1,9 +1,89 @@
 const fs = require('fs/promises');
+const fsSync = require('fs');
 const path = require('path');
+
+// .env.local 파일 로드 함수 (로컬 실행 시 환경변수 불러오기용)
+function loadEnvLocal() {
+  try {
+    const envPath = path.join(process.cwd(), '.env.local');
+    if (fsSync.existsSync(envPath)) {
+      const envContent = fsSync.readFileSync(envPath, 'utf8');
+      envContent.split(/\r?\n/).forEach(line => {
+        const parts = line.split('=');
+        if (parts.length >= 2) {
+          const key = parts[0].trim();
+          const value = parts.slice(1).join('=').trim().replace(/^["']|["']$/g, '');
+          if (key && !process.env[key]) {
+            process.env[key] = value;
+          }
+        }
+      });
+    }
+  } catch (e) {
+    console.warn('.env.local 파일을 로드하는 데 실패했습니다:', e.message);
+  }
+}
+
+// 환경변수 미리 로드
+loadEnvLocal();
+
+// Pexels API 호출 함수
+async function fetchPexelsImage(keyword, apiKey) {
+  if (!apiKey) return null;
+  try {
+    const res = await fetch(
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(keyword)}&per_page=1`,
+      {
+        headers: {
+          Authorization: apiKey,
+        },
+      }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      if (data.photos && data.photos.length > 0) {
+        return {
+          url: data.photos[0].src.large,
+          photographer: data.photos[0].photographer
+        };
+      }
+    }
+  } catch (err) {
+    console.error(`Pexels 이미지 검색 실패 (키워드: "${keyword}"):`, err.message);
+  }
+  return null;
+}
+
+// 최적의 이미지 검색 및 매칭 함수
+async function getBlogImage(item, apiKey) {
+  let name = (item.name || '').replace(/부산시|부산|남구/g, '').trim();
+
+  // 1. 이름으로 검색 (예: "봄꽃 축제")
+  let image = await fetchPexelsImage(name, apiKey);
+  if (image) return image;
+
+  // 2. 이름의 첫 두 단어로 축소 검색 (예: "청년 창업")
+  const words = name.split(/\s+/).filter(w => w.length > 1);
+  if (words.length > 1) {
+    const query = words.slice(0, 2).join(' ');
+    image = await fetchPexelsImage(query, apiKey);
+    if (image) return image;
+  }
+
+  // 3. 카테고리 기반 영문 검색어 fallback
+  const categoryFallback = item.category === '행사' ? 'festival' : 'welfare';
+  image = await fetchPexelsImage(categoryFallback, apiKey);
+  if (image) return image;
+
+  // 4. 최종 기본값
+  return fetchPexelsImage('korea', apiKey);
+}
 
 async function main() {
   try {
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    const PEXELS_API_KEY = process.env.PEXELS_API_KEY;
+
     if (!GEMINI_API_KEY) {
       console.error('Error: GEMINI_API_KEY 환경변수가 설정되지 않았습니다.');
       process.exit(1);
@@ -37,7 +117,7 @@ async function main() {
     }
 
     if (!targetItem) {
-      console.log('이미 작성된 글입니다');
+      console.log('이미 모든 최신 항목에 대해 블로그 글이 작성되었습니다.');
       return;
     }
 
@@ -106,10 +186,38 @@ tags: [태그1, 태그2, 태그3]
       filename += '.md';
     }
 
-    // 본문에서 FILENAME 줄 제거
+    // 본문에서 FILENAME 줄 제거 및 마크다운 코드블록 백틱 제거
     let blogContent = generatedText.replace(/FILENAME:.*$/i, '').trim();
+    blogContent = blogContent.replace(/^```markdown\s*/i, '').replace(/```$/, '').trim();
 
-    // 3. 파일 저장
+    // 3. Pexels 이미지 검색 및 본문 삽입 (에러 발생 시에도 글은 작성될 수 있도록 예외처리)
+    if (PEXELS_API_KEY) {
+      console.log(`Pexels 이미지 매칭 시도 중...`);
+      try {
+        const image = await getBlogImage(targetItem, PEXELS_API_KEY);
+        if (image) {
+          const parts = blogContent.split('---');
+          if (parts.length >= 3) {
+            const frontmatter = parts[1];
+            const body = parts.slice(2).join('---').trim();
+            const imageMarkdown = `\n\n![${targetItem.name}](${image.url})\n*Photo by ${image.photographer} on Pexels*\n\n`;
+            blogContent = `---${frontmatter}---\n${imageMarkdown}${body}`;
+            console.log(`성공적으로 본문에 이미지를 삽입했습니다: ${image.url}`);
+          } else {
+            // 구조가 안 맞을 경우 글의 가장 맨 앞 부분에 강제 삽입
+            blogContent = `![${targetItem.name}](${image.url})\n*Photo by ${image.photographer} on Pexels*\n\n${blogContent}`;
+          }
+        } else {
+          console.warn('조건에 맞는 이미지를 찾지 못했습니다.');
+        }
+      } catch (imageError) {
+        console.error('Pexels 이미지 처리 중 에러 발생:', imageError.message);
+      }
+    } else {
+      console.log('PEXELS_API_KEY 환경변수가 설정되지 않아 이미지 매칭을 생략합니다.');
+    }
+
+    // 4. 파일 저장
     const targetFilePath = path.join(postsDir, filename);
     await fs.writeFile(targetFilePath, blogContent, 'utf8');
 

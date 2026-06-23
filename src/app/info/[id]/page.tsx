@@ -67,7 +67,7 @@ export default async function InfoDetail({ params }: { params: Promise<{ id: str
       <header className="bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg">
         <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
           <Link href="/" className="hover:opacity-80 transition">
-            <h1 className="text-2xl font-extrabold tracking-tight">🏘️ 성남시 생활 정보</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight">🏘️ 부산시 생활 정보</h1>
             <p className="text-orange-100 text-sm mt-0.5">우리 동네 행사·혜택을 한눈에!</p>
           </Link>
           <div className="flex items-center gap-4">

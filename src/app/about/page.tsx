@@ -1,8 +1,8 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: '소개 및 안내 | 성남시 생활 정보',
-  description: '성남시 생활 정보 사이트의 운영 목적, 데이터 출처, 콘텐츠 생성 방식 및 신뢰성 공지를 확인하세요.',
+  title: '소개 및 안내 | 부산시 생활 정보',
+  description: '부산시 생활 정보 사이트의 운영 목적, 데이터 출처, 콘텐츠 생성 방식 및 신뢰성 공지를 확인하세요.',
 };
 
 export default function AboutPage() {
@@ -12,7 +12,7 @@ export default function AboutPage() {
       <header className="bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg">
         <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
           <Link href="/" className="hover:opacity-80 transition">
-            <h1 className="text-2xl font-extrabold tracking-tight">🏘️ 성남시 생활 정보</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight">🏘️ 부산시 생활 정보</h1>
             <p className="text-orange-100 text-sm mt-0.5">우리 동네 행사·혜택을 한눈에!</p>
           </Link>
           <div className="flex items-center gap-4">
@@ -33,7 +33,7 @@ export default function AboutPage() {
       <main className="max-w-3xl mx-auto px-6 py-12 space-y-10">
         <div className="text-center">
           <span className="text-5xl block mb-4">ℹ️</span>
-          <h2 className="text-3xl font-extrabold text-orange-600 mb-2">성남시 생활 정보 소개</h2>
+          <h2 className="text-3xl font-extrabold text-orange-600 mb-2">부산시 생활 정보 소개</h2>
           <p className="text-gray-500 text-sm">보다 투명하고 신뢰할 수 있는 지역 정보 생태계를 지향합니다.</p>
         </div>
 
@@ -44,7 +44,7 @@ export default function AboutPage() {
               <span className="text-xl">🎯</span> 운영 목적
             </h3>
             <p className="text-gray-600 leading-relaxed text-sm">
-              성남시 생활 정보 사이트는 지역 주민분들이 일상 속에서 누려야 할 다양한 <strong>축제, 문화 행사, 지원 정책 및 생활 혜택</strong> 정보를 한 곳에서 편리하게 확인하실 수 있도록 돕기 위해 구축되었습니다. 바쁜 일상 속에서 복잡한 기관 공지사항들을 일일이 찾아다니지 않고도, 나에게 꼭 필요한 혜택과 즐길 거리를 놓치지 않고 챙기실 수 있는 지역 정보 가이드가 되고자 합니다.
+              부산시 생활 정보 사이트는 지역 주민분들이 일상 속에서 누려야 할 다양한 <strong>축제, 문화 행사, 지원 정책 및 생활 혜택</strong> 정보를 한 곳에서 편리하게 확인하실 수 있도록 돕기 위해 구축되었습니다. 바쁜 일상 속에서 복잡한 기관 공지사항들을 일일이 찾아다니지 않고도, 나에게 꼭 필요한 혜택과 즐길 거리를 놓치지 않고 챙기실 수 있는 지역 정보 가이드가 되고자 합니다.
             </p>
           </section>
 
@@ -54,7 +54,7 @@ export default function AboutPage() {
               <span className="text-xl">📊</span> 공공데이터 출처 및 준수
             </h3>
             <p className="text-gray-600 leading-relaxed text-sm">
-              본 사이트에 게재되는 축제 및 혜택 등의 기초 정보는 대한민국 정부 공식 플랫폼인 <strong>공공데이터포털(data.go.kr)</strong>의 오픈 API 데이터를 엄격하게 가공하고 필터링하여 제공됩니다. 데이터의 원천 출처는 보건복지부, 행정안전부, 해양수산부 및 성남시/경기도 소관 기관이며, 공공 정보의 왜곡 없는 전달을 위해 최선을 다하고 있습니다.
+              본 사이트에 게재되는 축제 및 혜택 등의 기초 정보는 대한민국 정부 공식 플랫폼인 <strong>공공데이터포털(data.go.kr)</strong>의 오픈 API 데이터를 엄격하게 가공하고 필터링하여 제공됩니다. 데이터의 원천 출처는 보건복지부, 행정안전부, 해양수산부 및 부산시 소관 기관이며, 공공 정보의 왜곡 없는 전달을 위해 최선을 다하고 있습니다.
             </p>
           </section>
 
@@ -78,7 +78,7 @@ export default function AboutPage() {
       <footer className="bg-orange-100 border-t border-orange-200 mt-12 py-8 text-center text-sm text-orange-800">
         <div className="max-w-5xl mx-auto px-6 space-y-1.5">
           <p className="font-bold text-base">📊 데이터 출처: 공공데이터포털 (data.go.kr)</p>
-          <p className="text-xs text-orange-400 mt-3">© 2024 성남시 생활 정보. 본 사이트는 공공데이터를 활용하여 제작되었습니다.</p>
+          <p className="text-xs text-orange-400 mt-3">© 2024 부산시 생활 정보. 본 사이트는 공공데이터를 활용하여 제작되었습니다.</p>
         </div>
       </footer>
     </div>

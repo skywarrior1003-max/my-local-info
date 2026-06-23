@@ -1,5 +1,31 @@
 const fs = require('fs/promises');
+const fsSync = require('fs');
 const path = require('path');
+
+// .env.local 파일 로드 함수 (로컬 실행 시 환경변수 불러오기용)
+function loadEnvLocal() {
+  try {
+    const envPath = path.join(process.cwd(), '.env.local');
+    if (fsSync.existsSync(envPath)) {
+      const envContent = fsSync.readFileSync(envPath, 'utf8');
+      envContent.split(/\r?\n/).forEach(line => {
+        const parts = line.split('=');
+        if (parts.length >= 2) {
+          const key = parts[0].trim();
+          const value = parts.slice(1).join('=').trim().replace(/^["']|["']$/g, '');
+          if (key && !process.env[key]) {
+            process.env[key] = value;
+          }
+        }
+      });
+    }
+  } catch (e) {
+    console.warn('.env.local 파일을 로드하는 데 실패했습니다:', e.message);
+  }
+}
+
+// 환경변수 미리 로드
+loadEnvLocal();
 
 async function main() {
   try {
@@ -52,13 +78,9 @@ async function main() {
     };
 
     // 필터링 규칙 적용
-    let filtered = items.filter(item => checkContains(item, '성남'));
+    let filtered = items.filter(item => checkContains(item, '부산'));
     if (filtered.length === 0) {
-      console.log('"성남" 포함 항목이 없어 "경기" 포함 항목을 검색합니다.');
-      filtered = items.filter(item => checkContains(item, '경기'));
-    }
-    if (filtered.length === 0) {
-      console.log('"경기" 포함 항목도 없어 전체 데이터를 사용합니다.');
+      console.log('"부산" 포함 항목이 없어 전체 데이터를 사용합니다.');
       filtered = items;
     }
 

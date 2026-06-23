@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm';
 import { getPostBySlug, getAllPosts } from '@/lib/posts';
 import AdBanner from '@/components/AdBanner';
 import CoupangBanner from '@/components/CoupangBanner';
+import MarkdownImage from '@/components/MarkdownImage';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import fs from 'fs';
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   return {
-    title: `${post.title} | 성남시 생활 정보`,
+    title: `${post.title} | 부산시 생활 정보`,
     description: post.summary,
     openGraph: {
       title: post.title,
@@ -77,12 +78,12 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
     "description": post.summary,
     "author": {
       "@type": "Organization",
-      "name": "성남시 생활 정보",
+      "name": "부산시 생활 정보",
       "url": "https://my-local-info-3pm.pages.dev"
     },
     "publisher": {
       "@type": "Organization",
-      "name": "성남시 생활 정보",
+      "name": "부산시 생활 정보",
       "logo": {
         "@type": "ImageObject",
         "url": "https://my-local-info-3pm.pages.dev/favicon.ico"
@@ -95,12 +96,13 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
+        suppressHydrationWarning
       />
       {/* ===== 헤더 ===== */}
       <header className="bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg">
         <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
           <Link href="/" className="hover:opacity-80 transition">
-            <h1 className="text-2xl font-extrabold tracking-tight">🏘️ 성남시 생활 정보</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight">🏘️ 부산시 생활 정보</h1>
             <p className="text-orange-100 text-sm mt-0.5">우리 동네 행사·혜택을 한눈에!</p>
           </Link>
           <div className="flex items-center gap-4">
@@ -157,7 +159,18 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
 
           {/* 마크다운 본문 */}
           <div className="prose prose-orange max-w-none prose-headings:font-bold prose-a:text-orange-600 prose-img:rounded-2xl mb-10">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                img: ({ node, ...props }) => (
+                  <MarkdownImage
+                    src={typeof props.src === 'string' ? props.src : undefined}
+                    alt={props.alt}
+                    className="rounded-2xl w-full max-h-[450px] object-cover my-6 shadow-sm"
+                  />
+                )
+              }}
+            >
               {post.content}
             </ReactMarkdown>
           </div>
@@ -201,7 +214,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
       <footer className="bg-orange-100 border-t border-orange-200 mt-12 py-8 text-center text-sm text-orange-800">
         <div className="max-w-5xl mx-auto px-6 space-y-1.5">
           <p className="font-bold text-base">📊 데이터 출처: 공공데이터포털 (data.go.kr)</p>
-          <p className="text-xs text-orange-400 mt-3">© 2024 성남시 생활 정보. 본 사이트는 공공데이터를 활용하여 제작되었습니다.</p>
+          <p className="text-xs text-orange-400 mt-3">© 2024 부산시 생활 정보. 본 사이트는 공공데이터를 활용하여 제작되었습니다.</p>
         </div>
       </footer>
     </div>
