@@ -115,13 +115,23 @@ export default function ChatBot() {
     }
   };
 
-  const connectHuman = () => {
+  const connectHuman = async () => {
     setIsHumanMode(true);
     lastMessageIdRef.current = null;
     setMessages((prev) => [
       ...prev,
       { type: 'bot', text: '상담원 연결을 요청했습니다. 잠시만 기다려주세요...' },
     ]);
+    // 관리자가 연결 요청을 인지할 수 있도록 서버에 알림 전송
+    try {
+      await fetch('/api/chat-human', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, message: '[상담원 연결 요청]', sender: 'user' }),
+      });
+    } catch {
+      // 무시
+    }
   };
 
   const disconnectHuman = () => {

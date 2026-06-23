@@ -8,6 +8,7 @@ export async function onRequestGet(context) {
   const url = new URL(request.url);
   const senderFilter = url.searchParams.get('sender');
   const lastId = url.searchParams.get('lastId');
+  const sessionIdFilter = url.searchParams.get('sessionId');
 
   const listed = await env.CHAT_KV.list({ prefix: 'msg_' });
 
@@ -29,6 +30,7 @@ export async function onRequestGet(context) {
     }
 
     if (senderFilter && data.sender !== senderFilter) continue;
+    if (sessionIdFilter && data.sessionId !== sessionIdFilter) continue;
 
     messages.push({
       id: key,
